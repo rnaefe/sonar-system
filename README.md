@@ -17,7 +17,7 @@ A modular Python framework for HC-SR04 ultrasonic sensor visualization and robot
 
 ## � Demo
 
-https://github.com/user-attachments/assets/video.mp4
+[Showcase](https://github.com/rnaefe/sonar-system/raw/refs/heads/main/docs/video.mp4)
 
 ## �🎯 Radar Types
 
