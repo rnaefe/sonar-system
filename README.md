@@ -1,228 +1,103 @@
-# 🛸 Sonar System
+# Sonar System
 
-A modular Python framework for HC-SR04 ultrasonic sensor visualization and robot control.
+A modular sensor visualization framework with signal processing.
 
-![Python](https://img.shields.io/badge/Python-3.8+-blue.svg)
-![License](https://img.shields.io/badge/License-MIT-green.svg)
-![Platform](https://img.shields.io/badge/Platform-Windows%20%7C%20Linux%20%7C%20macOS-lightgrey.svg)
+## Scope
 
-## ✨ Features
+This project explores three interconnected problems:
 
-- **📡 Multiple Radar Views** - Switch between 4 different visualization styles
-- **🎮 Robot Control** - Joystick and keyboard control for your robot
-- **🔌 Serial Communication** - Real-time data from Arduino
-- **🎨 Modern UI** - Dark theme with sci-fi aesthetics
-- **📦 Modular Design** - Easy to extend with new radar types
-- **⚙️ Configurable** - All settings in one place
+1. How to abstract hardware sensors so visualization code remains decoupled
+2. How to filter noisy real-time data using composable signal processing
+3. How to visualize distance measurements in multiple meaningful ways
 
-## � Demo
+The system works with HC-SR04 ultrasonic sensors but is designed to support any distance sensor that can provide angle-distance pairs.
 
-Showcase:
-https://streamable.com/nqcpjt
+## Why This Exists
 
-## �🎯 Radar Types
+Ultrasonic sensors produce noisy data. A stationary wall at 100cm might yield readings of 98, 103, 2, 101, 200, 99 over successive measurements. The spikes at 2cm and 200cm are sensor errors. The jitter of ±3cm is inherent noise.
 
-| Radar | Description |
-|-------|-------------|
-| 📡 **Polar Radar** | Classic sonar-style polar plot with trail effect |
-| 🌐 **3D LiDAR** | Real-time 3D point cloud with tunnel effect |
-| 🤖 **Robot FOV** | First person view from robot's perspective |
-| 🎯 **Object Detection** | Intelligent object detection with zone classification |
+Raw sensor data is rarely usable for decision-making. This project exists to demonstrate how abstraction and filtering address that problem, and to provide visualization tools that make the difference visible.
 
-## 🚀 Quick Start
+## Learning Goals
 
-### Prerequisites
+This project was built to develop competence in:
+
+- Designing abstract interfaces that hide implementation details
+- Implementing standard signal processing filters (moving average, median, Kalman)
+- Building real-time PyQt5 applications with matplotlib integration
+- Structuring Python projects for extensibility
+
+These goals are stated explicitly because the codebase should be read with them in mind.
+
+## Architecture
+
+The system follows a pipeline architecture:
+
+```
+Sensor -> DataProcessor -> FilterChain -> Visualization
+```
+
+**Sensors** produce raw angle-distance pairs. Two implementations exist: `UltrasonicSensor` for real hardware, and `MockSensor` for testing without hardware. Both implement `BaseSensor`.
+
+**DataProcessor** receives raw data, applies the filter chain, and emits both raw and filtered signals. This enables comparison visualization.
+
+**FilterChain** composes multiple filters in sequence. The standard chain applies median filtering (to remove spikes) followed by smoothing (to reduce jitter).
+
+**Visualization** displays the processed data. Multiple radar styles exist. The comparison radar shows raw and filtered data simultaneously.
+
+## Project Structure
+
+```
+sonar_system/
+    sensors/          # Sensor abstraction layer
+    filters/          # Signal processing filters
+    radars/           # Visualization implementations
+    config/           # Configuration
+    data_processor.py # Central data routing
+    control_center_v2.py # Main application
+```
+
+Each directory has a specific responsibility. See the documentation in `/docs` for detailed explanations.
+
+## What This Project Avoids
+
+- **Over-engineering**: No dependency injection frameworks, no plugin systems, no configuration DSLs. The abstractions exist because they solve real problems, not because patterns are interesting.
+
+- **Hardware lock-in**: The visualization layer does not import sensor implementations directly. Sensors are passed as abstract types.
+
+- **Premature optimization**: Filters use simple Python data structures. Performance is adequate for 50Hz sensor data.
+
+## Requirements
 
 - Python 3.8+
-- Arduino with HC-SR04 sensor and 2 motors
-- USB connection to Arduino
+- PyQt5
+- matplotlib
+- numpy
+- pyserial (for hardware sensor)
 
-### Installation
+## Usage
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/rnaefe/sonar-system.git
-   cd sonar-system
-   ```
+Run with simulated sensor (no hardware required):
 
-2. **Install dependencies**
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-3. **Configure serial port**
-   
-   Edit `sonar_system/config/settings.py`:
-   ```python
-   SERIAL = {
-       "port": "COM5",  # Change to your port
-       "baud_rate": 250000,
-   }
-   ```
-
-4. **Upload Arduino firmware**
-   
-   Upload the firmware from `firmware/sonar_robot/sonar_robot.ino` to your Arduino.
-
-5. **Run the application**
-   ```bash
-   python run.py
-   ```
-
-## 📁 Project Structure
-
-```
-sonar-system/
-├── run.py                    # Entry point
-├── requirements.txt          # Python dependencies
-├── README.md                 # This file
-├── LICENSE                   # MIT License
-├── .gitignore               # Git ignore rules
-│
-├── sonar_system/            # Main package
-│   ├── __init__.py
-│   ├── main.py              # Alternative entry point
-│   ├── control_center.py    # Main application
-│   │
-│   ├── config/              # Configuration
-│   │   ├── __init__.py
-│   │   └── settings.py      # All settings
-│   │
-│   ├── core/                # Core components
-│   │   ├── __init__.py
-│   │   ├── serial_manager.py  # Serial communication
-│   │   └── base_radar.py    # Base class for radars
-│   │
-│   ├── radars/              # Radar visualizations
-│   │   ├── __init__.py
-│   │   ├── polar_radar.py
-│   │   ├── lidar_3d_radar.py
-│   │   ├── robot_fov_radar.py
-│   │   └── object_detection_radar.py
-│   │
-│   └── widgets/             # UI components
-│       ├── __init__.py
-│       ├── joystick.py
-│       └── mini_radar.py
-│
-└── firmware/                # Arduino code
-    └── sonar_robot/
-        └── sonar_robot.ino
+```bash
+python run.py
 ```
 
-## 🎮 Controls
+Run the legacy interface:
 
-### Keyboard (Control Mode)
-| Key | Action |
-|-----|--------|
-| W / ↑ | Move Forward |
-| S / ↓ | Move Backward |
-| A / ← | Turn Left |
-| D / → | Turn Right |
-| Space | Stop |
-
-### Mouse
-- **Joystick Widget** - Click and drag to control
-- **3D View** - Rotate, zoom, and pan with mouse
-
-## ⚙️ Configuration
-
-All settings are in `sonar_system/config/settings.py`:
-
-```python
-# Serial connection
-SERIAL = {
-    "port": "COM5",
-    "baud_rate": 250000,
-}
-
-# Sensor settings
-SENSOR = {
-    "max_distance": 200,
-    "min_distance": 2,
-}
-
-# Object detection zones
-DETECTION = {
-    "danger_zone": 20,
-    "warning_zone": 40,
-}
+```bash
+python run.py --legacy
 ```
 
-## 🔧 Hardware Setup
+Configuration is in `sonar_system/config/settings.py`.
 
-### Components
-- Arduino (Uno, Nano, or compatible)
-- HC-SR04 Ultrasonic Sensor
-- Motor Driver (L298N or similar)
-- DC Motors (for robot movement)
-- Robot chassis
+## Documentation
 
-### Wiring
+- [Architecture](docs/architecture.md) — Design decisions and component boundaries
+- [Sensors](docs/sensors.md) — Sensor abstraction and implementations
+- [Filters](docs/filters.md) — Signal processing pipeline
+- [Visualization](docs/visualization.md) — Radar types and comparison mode
 
-| HC-SR04 | Arduino |
-|---------|---------|
-| VCC | 5V |
-| GND | GND |
-| TRIG | A3 |
-| ECHO | A2 |
+## License
 
-| Motor Driver | Arduino |
-|--------------|---------|
-| Left Motor | D2, D4, D3 (PWM) |
-| Right Motor | A0, A1, D5 (PWM) |
-
-## 🧩 Creating Custom Radars
-
-You can easily add new radar types by extending `BaseRadar`:
-
-```python
-from sonar_system.core import BaseRadar
-
-class MyCustomRadar(BaseRadar):
-    NAME = "My Radar"
-    DESCRIPTION = "My custom radar visualization"
-    ICON = "🔮"
-    
-    def create_widget(self):
-        # Create and return your widget
-        pass
-    
-    def update_data(self, angle, distance):
-        # Handle incoming data
-        pass
-    
-    def clear(self):
-        # Reset the visualization
-        pass
-```
-
-Then register it in `sonar_system/radars/__init__.py`.
-
-## 📦 Dependencies
-
-- **PyQt5** - GUI framework
-- **pyqtgraph** - Fast plotting
-- **PyOpenGL** - 3D rendering
-- **pyserial** - Serial communication
-- **numpy** - Numerical operations
-- **matplotlib** - Polar plots
-
-## 🤝 Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## 🙏 Acknowledgments
-
-- Inspired by DIY LiDAR and sonar projects
-- Built with ❤️ using Python and PyQt5
+MIT

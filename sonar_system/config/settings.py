@@ -18,6 +18,33 @@ SENSOR = {
     "angle_max": 180,         # Maximum scan angle
 }
 
+# ==================== FILTERING SETTINGS ====================
+FILTER = {
+    "enabled": True,          # Enable filtering by default
+    "default_preset": "standard",  # Options: "none", "light", "standard", "heavy", "kalman"
+    
+    # Moving Average settings
+    "moving_average_window": 5,
+    
+    # Median Filter settings  
+    "median_window": 5,
+    
+    # Kalman Filter settings
+    "kalman_process_noise": 1.0,
+    "kalman_measurement_noise": 10.0,
+    
+    # Spike detection threshold (cm)
+    "spike_threshold": 50.0,
+}
+
+# ==================== MOCK SENSOR SETTINGS ====================
+MOCK_SENSOR = {
+    "scan_speed": 0.02,       # Time between readings (seconds)
+    "noise_level": 5.0,       # Gaussian noise std dev (cm)
+    "outlier_probability": 0.05,  # Chance of generating spike
+    "scenario": "realistic",  # Options: "wall", "moving_object", "realistic"
+}
+
 # ==================== VISUALIZATION SETTINGS ====================
 DISPLAY = {
     "update_interval": 50,    # Animation update interval in ms
