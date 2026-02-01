@@ -1,0 +1,68 @@
+[project]
+name = "sonar-system"
+version = "1.0.0"
+description = "A modular Python framework for HC-SR04 ultrasonic sensor visualization and robot control"
+readme = "README.md"
+license = {text = "MIT"}
+requires-python = ">=3.8"
+authors = [
+    {name = "Your Name", email = "your.email@example.com"}
+]
+keywords = ["sonar", "radar", "ultrasonic", "hc-sr04", "robot", "visualization", "arduino"]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Education",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Visualization",
+    "Topic :: Scientific/Engineering :: Human Machine Interfaces",
+]
+
+dependencies = [
+    "PyQt5>=5.15.0",
+    "pyqtgraph>=0.12.0",
+    "PyOpenGL>=3.1.0",
+    "pyserial>=3.5",
+    "numpy>=1.20.0",
+    "matplotlib>=3.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0.0",
+    "black>=22.0.0",
+    "flake8>=4.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/yourusername/sonar-system"
+Repository = "https://github.com/yourusername/sonar-system.git"
+Documentation = "https://github.com/yourusername/sonar-system#readme"
+"Bug Tracker" = "https://github.com/yourusername/sonar-system/issues"
+
+[project.scripts]
+sonar-system = "sonar_system.control_center:run"
+
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["sonar_system*"]
+
+[tool.black]
+line-length = 88
+target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+include = '\.pyi?$'
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = "test_*.py"
